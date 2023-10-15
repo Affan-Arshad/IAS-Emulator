@@ -27,9 +27,12 @@
 import { computed, ref } from 'vue';
 import AccumulatorDisplay from './AccumulatorDisplay.vue';
 
-const ram = ref(new Array(1000).fill(0)); // Fill with initial values
+const ram = ref(new Array(1000).fill(null)); // Fill with initial values
 
-const assemblyCode = ref('');
+ram.value[5] = 5
+ram.value[6] = 7
+
+const assemblyCode = ref('001 load m(5)\n002 add m(6)\n003 stor m(8)');
 const accumulator = ref(0);
 const isRunning = ref(false);
 const lines = computed(() => assemblyCode.value.split('\n').length)
@@ -49,6 +52,33 @@ const runSimulation = () => {
                     accumulatorValue = load(address);
                 }
             },
+            'add': () => {
+                if (address !== null) {
+                    accumulatorValue += load(address); // Add the value to the accumulator
+                }
+            },
+            'sub': () => {
+                if (address !== null) {
+                    accumulatorValue -= load(address); // Add the value to the accumulator
+                }
+            },
+            'div': () => {
+                if (address !== null) {
+                    accumulatorValue /= load(address); // Add the value to the accumulator
+                }
+            },
+            'mul': () => {
+                if (address !== null) {
+                    accumulatorValue = load(address); // Add the value to the accumulator
+                }
+            },
+            'stor': () => {
+                if (address !== null) {
+                    store(address);
+                }
+
+            },
+
             // Add more instructions as needed
         };
 
@@ -81,11 +111,15 @@ const runSimulation = () => {
 
     const load = (address) => {
         console.log('load address ', address);
-        return 1;
+        return ram.value[address]
         // Implement the 'LOAD' instruction logic here
         // Load the value from the specified memory address
         // and return the result
     };
+
+    const store = (address) => {
+        ram.value[address] = accumulator.value
+    }
 
     const executeInstructionsSequentially = async () => {
         const instructions = assemblyCode.value.split('\n');
